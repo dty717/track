@@ -32,9 +32,9 @@ const clearErrorMessage = dispatch => () => {
   dispatch({ type: 'clear_error_message' });
 };
 
-const signup = dispatch => async ({ email, password }) => {
+const signup = dispatch => async ({ username, password }) => {
   try {
-    const response = await trackerApi.post('/signup', { email, password });
+    const response = await trackerApi.post('/signup', { username, password });
     await AsyncStorage.setItem('token', response.data.token);
     dispatch({ type: 'signin', payload: response.data.token });
 
@@ -47,9 +47,9 @@ const signup = dispatch => async ({ email, password }) => {
   }
 };
 
-const signin = dispatch => async ({ email, password }) => {
+const signin = dispatch => async ({ username, password }) => {
   try {
-    const response = await trackerApi.post('/signin', { email, password });
+    const response = await trackerApi.post('/signin', { username, password });
     await AsyncStorage.setItem('token', response.data.token);
     dispatch({ type: 'signin', payload: response.data.token });
     navigate('TrackList');
