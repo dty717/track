@@ -9,6 +9,7 @@ import SignupScreen from './src/screens/SignupScreen';
 import TrackCreateScreen from './src/screens/TrackCreateScreen';
 import TrackDetailScreen from './src/screens/TrackDetailScreen';
 import TrackListScreen from './src/screens/TrackListScreen';
+import TodoScreen from './src/screens/TodoScreen';
 import { Provider as AuthProvider } from './src/context/AuthContext';
 import { setNavigator } from './src/navigationRef';
 import ResolveAuthScreen from './src/screens/ResolveAuthScreen';
@@ -33,6 +34,7 @@ const switchNavigator = createSwitchNavigator({
     Signin: SigninScreen,
   }),
   mainFlow: createBottomTabNavigator({
+    Todo:TodoScreen,
     trackListFlow,
     TrackCreate: TrackCreateScreen,
     Account: AccountScreen,

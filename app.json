@@ -1,9 +1,7 @@
 {
   "expo": {
-    "name": "Track",
-    "slug": "track",
-    "privacy": "public",
-    "platforms": ["ios", "android", "web"],
+    "name": "tracks",
+    "slug": "tracks",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,13 +13,20 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "dty717.track"
+      "supportsTablet": true
     },
     "android": {
-      "package": "dty717.track"
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     }
   }
 }
