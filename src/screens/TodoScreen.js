@@ -1,12 +1,45 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { KeyboardAvoidingView, StyleSheet, Text, View, TextInput, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
 import Task from '../components/Task';
 import { FontAwesome } from '@expo/vector-icons';
 import { Context as AuthContext } from '../context/AuthContext';
-
+import Api from "../api/Api";
+import {Human} from '../script/notification'
 const TodoScreen = () => {
   const [task, setTask] = useState();
   const { state,setTaskItems } = useContext(AuthContext);
+  useEffect(async()=>{
+    // var bodyFormData = new FormData();
+    // bodyFormData.append('username', 'dty717');
+    // bodyFormData.append('password', 'd52180362'); 
+    // var val = await Api.post('/login', bodyFormData, {headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+    // alert(123)
+    try {
+      var val = await Api.get('C:/Users/18751/Desktop/新建工程/关于网站设计开发-2/代码/script/ai/human.txt', {
+        auth: {
+          username: 'dty717',
+          password: 'd52180362'
+        },
+      })
+      var human = new Human();
+      human.loadHistoryContentStr(val.data);
+      // setTaskItems([...state.todo, ... human.searchThinkingWithoutChildren()])
+     //;
+      // Api.get('/root/IDE/script/ai/human.txt', {
+      //   auth: {
+      //     username: 'dty717',
+      //     password: 'd52180362'
+      //   }
+      // }).then((obj)=>{
+      //   alert(JSON.stringify(obj));
+      // }).catch((e)=>{
+      //   alert(e);
+      // })
+    } catch (error) {
+      console.log({error})
+      // alert("error "+JSON.stringify(error))
+    }
+  },[])
 
   const handleAddTask = () => {
     Keyboard.dismiss();
