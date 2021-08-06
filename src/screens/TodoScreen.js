@@ -3,6 +3,11 @@ import { KeyboardAvoidingView, StyleSheet, Text, View, TextInput, TouchableOpaci
 import Task from '../components/Task';
 import { FontAwesome } from '@expo/vector-icons';
 import { Context as AuthContext } from '../context/AuthContext';
+import {
+  Accuracy,
+  getCurrentPositionAsync,
+} from 'expo-location';
+
 import Api from "../api/Api";
 import {Human} from '../script/notification'
 const TodoScreen = () => {
@@ -41,16 +46,22 @@ const TodoScreen = () => {
     }
   },[])
 
-  const handleAddTask = () => {
+  const handleAddTask =async () => {
     Keyboard.dismiss();
-    setTaskItems([...state.todo, task])
+    let location;
+    try {
+      location = await getCurrentPositionAsync({accuracy:Accuracy.Lowest});
+    } catch (e) {
+    }
+    setTaskItems([...state.todo, {task,time:new Date(),location:{lat:location.coords.latitude,lon:location.coords.longitude}}])
     setTask(null);
   }
 
   const completeTask = (index) => {
     let itemsCopy = [...state.todo];
-    itemsCopy.splice(index, 1);
-    setTaskItems(itemsCopy)
+    var item = itemsCopy.splice(index, 1);
+    alert(JSON.stringify(item[0].location)+"\r\n"+(new Date()-new Date(item[0].time))/1000+"\r\n"+item[0].time+"\r\n"+new Date())
+    setTaskItems(itemsCopy);
   }
 
   return (
@@ -72,7 +83,7 @@ const TodoScreen = () => {
             state.todo.map((item, index) => {
               return (
                 <TouchableOpacity key={index}  onPress={() => completeTask(index)}>
-                  <Task text={item} /> 
+                  <Task text={item.task} /> 
                 </TouchableOpacity>
               )
             })

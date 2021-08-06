@@ -28,6 +28,12 @@ const tryLocalSignin = (dispatch) => async () => {
       todo = [];
     }else{
       todo = JSON.parse(todo);
+      for (let index = 0; index < todo.length; index++) {
+        const element = todo[index];
+        if(!element.task){
+          todo[index] = {task:element,time:new Date()}
+        }
+      }
     }
     dispatch({ type: "signin", payload: {token,todo} });
     navigate("Todo");
