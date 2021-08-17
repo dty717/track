@@ -90,7 +90,7 @@ const TodoScreen = () => {
     } catch (e) {
     }
     item[0].finishLocation = finishLocation
-    
+    alert(JSON.stringify(item[0]))
     setTaskItems(itemsCopy);
     var val =await Api.post('/onFinishTask', item[0], {
       auth: {
