@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, StyleSheet, Text, View, TextInput, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
 import Task from '../components/Task';
 import { FontAwesome } from '@expo/vector-icons';
@@ -9,59 +9,95 @@ import {
 } from 'expo-location';
 
 import Api from "../api/Api";
-import {Human} from '../script/notification'
+import { Human } from '../script/notification'
 const TodoScreen = () => {
   const [task, setTask] = useState();
-  const { state,setTaskItems } = useContext(AuthContext);
-  useEffect(async()=>{
-    // var bodyFormData = new FormData();
-    // bodyFormData.append('username', 'dty717');
-    // bodyFormData.append('password', 'd52180362'); 
-    // var val = await Api.post('/login', bodyFormData, {headers: { "Content-Type": "application/x-www-form-urlencoded" } });
-    // alert(123)
-    try {
-      var val = await Api.get('C:/Users/18751/Desktop/新建工程/关于网站设计开发-2/代码/script/ai/human.txt', {
-        auth: {
-          username: 'dty717',
-          password: 'd52180362'
-        },
-      })
-      var human = new Human();
-      human.loadHistoryContentStr(val.data);
-      // setTaskItems([...state.todo, ... human.searchThinkingWithoutChildren()])
-     //;
-      // Api.get('/root/IDE/script/ai/human.txt', {
-      //   auth: {
-      //     username: 'dty717',
-      //     password: 'd52180362'
-      //   }
-      // }).then((obj)=>{
-      //   alert(JSON.stringify(obj));
-      // }).catch((e)=>{
-      //   alert(e);
-      // })
-    } catch (error) {
-      console.log({error})
-      // alert("error "+JSON.stringify(error))
-    }
-  },[])
+  const { state, setTaskItems } = useContext(AuthContext);
+  // useEffect(async()=>{
+  //   // var bodyFormData = new FormData();
+  //   // bodyFormData.append('username', 'dty717');
+  //   // bodyFormData.append('password', 'd52180362'); 
+  //   // var val = await Api.post('/login', bodyFormData, {headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+  //   // alert(123)
+  //   try {
+  //     // var val = await Api.get('C:/Users/18751/Desktop/新建工程/关于网站设计开发-2/代码/script/ai/human.txt', {
+  //     //   auth: {
+  //     //     username: 'dty717',
+  //     //     password: 'd52180362'
+  //     //   },
+  //     // })
+  //     // var human = new Human();
+  //     // human.loadHistoryContentStr(val.data);
 
-  const handleAddTask =async () => {
+  //     // setTaskItems([...state.todo, ... human.searchThinkingWithoutChildren()])
+  //    //;
+  //     // Api.get('/root/IDE/script/ai/human.txt', {
+  //     //   auth: {
+  //     //     username: 'dty717',
+  //     //     password: 'd52180362'
+  //     //   }
+  //     // }).then((obj)=>{
+  //     //   alert(JSON.stringify(obj));
+  //     // }).catch((e)=>{
+  //     //   alert(e);
+  //     // })
+  //   } catch (error) {
+  //     console.log({error})
+  //     // alert("error "+JSON.stringify(error))
+  //   }
+  // },[])
+
+  const handleAddTask = async () => {
     Keyboard.dismiss();
     let location;
     try {
-      location = await getCurrentPositionAsync({accuracy:Accuracy.Lowest});
+      location = await getCurrentPositionAsync({ accuracy: Accuracy.Lowest });
     } catch (e) {
     }
-    setTaskItems([...state.todo, {task,time:new Date(),location:{lat:location.coords.latitude,lon:location.coords.longitude}}])
+    var _task;
+    if(location&&location.coords){
+      _task = { task, time: new Date(), location: { lat: location.coords.latitude, lon: location.coords.longitude } };
+    }else{
+      _task = { task, time: new Date()};
+    }
+    setTaskItems([...state.todo, _task])
     setTask(null);
+    try {
+      var val =await Api.post('/onCreateTask', _task, {
+        auth: {
+          username: 'dty717',
+          password: 'd52180362'
+        }
+      })
+      if(val.data.state){
+        alert(val.data.info)
+      }
+    } catch (e) {
+      alert(e)
+    }
+
+
   }
 
-  const completeTask = (index) => {
+  const completeTask = async (index) => {
     let itemsCopy = [...state.todo];
     var item = itemsCopy.splice(index, 1);
-    alert(JSON.stringify(item[0].location)+"\r\n"+(new Date()-new Date(item[0].time))/1000+"\r\n"+item[0].time+"\r\n"+new Date())
+    let finishLocation;
+    item[0].finishTime = new Date()
+    try {
+      finishLocation = await getCurrentPositionAsync({ accuracy: Accuracy.Lowest });
+      finishLocation = { lat: finishLocation.coords.latitude, lon: finishLocation.coords.longitude };
+    } catch (e) {
+    }
+    item[0].finishLocation = finishLocation
+    
     setTaskItems(itemsCopy);
+    var val =await Api.post('/onFinishTask', item[0], {
+      auth: {
+        username: 'dty717',
+        password: 'd52180362'
+      }
+    })
   }
 
   return (
@@ -74,28 +110,28 @@ const TodoScreen = () => {
         keyboardShouldPersistTaps='handled'
       >
 
-      {/* Today's Tasks */}
-      <View style={styles.tasksWrapper}>
-        <Text style={styles.sectionTitle}>Today's tasks</Text>
-        <View style={styles.items}>
-          {/* This is where the tasks will go! */}
-          {
-            state.todo.map((item, index) => {
-              return (
-                <TouchableOpacity key={index}  onPress={() => completeTask(index)}>
-                  <Task text={item.task} /> 
-                </TouchableOpacity>
-              )
-            })
-          }
+        {/* Today's Tasks */}
+        <View style={styles.tasksWrapper}>
+          <Text style={styles.sectionTitle}>Today's tasks</Text>
+          <View style={styles.items}>
+            {/* This is where the tasks will go! */}
+            {
+              state.todo.map((item, index) => {
+                return (
+                  <TouchableOpacity key={index} onPress={() => completeTask(index)}>
+                    <Task text={item.task} />
+                  </TouchableOpacity>
+                )
+              })
+            }
+          </View>
         </View>
-      </View>
-        
+
       </ScrollView>
 
       {/* Write a task */}
       {/* Uses a keyboard avoiding view which ensures the keyboard does not cover the items on screen */}
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.writeTaskWrapper}
       >
@@ -106,7 +142,7 @@ const TodoScreen = () => {
           </View>
         </TouchableOpacity>
       </KeyboardAvoidingView>
-      
+
     </View>
   );
 }
