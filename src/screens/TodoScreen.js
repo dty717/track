@@ -6,6 +6,7 @@ import { Context as AuthContext } from '../context/AuthContext';
 import {
   Accuracy,
   getCurrentPositionAsync,
+  requestPermissionsAsync
 } from 'expo-location';
 
 import Api from "../api/Api";
@@ -51,8 +52,13 @@ const TodoScreen = () => {
     Keyboard.dismiss();
     let location;
     try {
-      location = await getCurrentPositionAsync({ accuracy: Accuracy.Lowest });
+      let { status } = await requestPermissionsAsync();
+      if (status === 'granted') {
+        location = await getCurrentPositionAsync({ accuracy: Accuracy.Lowest });
+        location = { lat: finishLocation.coords.latitude, lon: finishLocation.coords.longitude };
+      }
     } catch (e) {
+      alert(JSON.stringify(e))
     }
     var _task;
     if(location&&location.coords){
@@ -85,9 +91,13 @@ const TodoScreen = () => {
     let finishLocation;
     item[0].finishTime = new Date()
     try {
-      finishLocation = await getCurrentPositionAsync({ accuracy: Accuracy.Lowest });
-      finishLocation = { lat: finishLocation.coords.latitude, lon: finishLocation.coords.longitude };
+      let { status } = await requestPermissionsAsync();
+      if (status === 'granted') {
+        finishLocation = await getCurrentPositionAsync({ accuracy: Accuracy.Lowest });
+        finishLocation = { lat: finishLocation.coords.latitude, lon: finishLocation.coords.longitude };
+      }
     } catch (e) {
+      alert(JSON.stringify(e))
     }
     item[0].finishLocation = finishLocation
     alert(JSON.stringify(item[0]))
