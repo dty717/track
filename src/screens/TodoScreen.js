@@ -54,7 +54,7 @@ const TodoScreen = () => {
     try {
       let { status } = await requestPermissionsAsync();
       if (status === 'granted') {
-        location = await getCurrentPositionAsync({ accuracy: Accuracy.Lowest });
+        location = await getCurrentPositionAsync({ accuracy: Accuracy.BestForNavigation });
         location = { lat: finishLocation.coords.latitude, lon: finishLocation.coords.longitude };
       }
     } catch (e) {
@@ -93,7 +93,7 @@ const TodoScreen = () => {
     try {
       let { status } = await requestPermissionsAsync();
       if (status === 'granted') {
-        finishLocation = await getCurrentPositionAsync({ accuracy: Accuracy.Lowest });
+        finishLocation = await getCurrentPositionAsync({ accuracy: Accuracy.BestForNavigation });
         finishLocation = { lat: finishLocation.coords.latitude, lon: finishLocation.coords.longitude };
       }
     } catch (e) {
