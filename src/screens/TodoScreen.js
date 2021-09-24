@@ -108,6 +108,9 @@ const TodoScreen = () => {
         password: 'd52180362'
       }
     })
+    if(val.data.state){
+      alert(val.data.info)
+    }
   }
 
   return (
