@@ -1,5 +1,6 @@
-require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+require File.join(File.dirname(`node --print "require.resolve('expo/package.json')"`), "scripts/autolinking")
+require File.join(File.dirname(`node --print "require.resolve('react-native/package.json')"`), "scripts/react_native_pods")
+require File.join(File.dirname(`node --print "require.resolve('@react-native-community/cli-platform-ios/package.json')"`), "native_modules")
 
 require 'json'
 podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {}
@@ -7,7 +8,11 @@ podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {
 platform :ios, podfile_properties['ios.deploymentTarget'] || '13.0'
 install! 'cocoapods', :deterministic_uuids => false
 target 'track' do
+  use_expo_modules!
   config = use_native_modules!
+
+  use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
+
   # Flags change depending on the env values.
   flags = get_default_flags()
   use_react_native!(
@@ -23,7 +28,7 @@ target 'track' do
     # you should disable the next line.
     :flipper_configuration => FlipperConfiguration.enabled,
     # An absolute path to your application root.
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
+    :app_path => "#{Dir.pwd}/.."
   )
   target 'trackTests' do
     inherit! :complete
@@ -38,4 +43,12 @@ target 'track' do
     )
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
+  post_integrate do |installer|
+    begin
+      expo_patch_react_imports!(installer)
+    rescue => e
+      Pod::UI.warn e
+    end
+  end
+
 end
